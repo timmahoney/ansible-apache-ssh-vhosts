@@ -1,16 +1,8 @@
 ---
 galaxy_info:
-  author: your name
+  author: Tim Mahoney (tim@timothymahoney.com)
   description: 
-  company: your company (optional)
-  # Some suggested licenses:
-  # - BSD (default)
-  # - MIT
-  # - GPLv2
-  # - GPLv3
-  # - Apache
-  # - CC-BY
-  license: license (GPLv2, CC-BY, etc)
+  license: MIT
   min_ansible_version: 1.2
   #
   # Below are all platforms currently available. Just uncomment

@@ -1,2 +1,14 @@
 ---
-# tasks file for .
+- name: "[INSTALL] Main Packages"
+  yum: "name={{ item }} state=present"
+  with_items: main_packages
+
+- name: "[INSTALL] Custom Packages"
+  yum: "name={{ item }} state=present"
+  with_items: main_packages
+
+- name: "[DIR] Ensure sites-available folder exists"
+  file: "path={{ apache_vhost_available_path }} state=directory owner={{ apache_user }} group={{ apache_group }} mode=644"
+
+- name: "[CONFIG] httpd.conf"
+  template: "httpd.conf.j2 dest={{ apache_etc }}/conf/httpd.conf owner=root group=root mode=644"

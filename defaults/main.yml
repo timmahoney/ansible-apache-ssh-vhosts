@@ -1,2 +1,388 @@
 ---
-# defaults file for .
+apache_custom_packages: []
+
+# Main Apache Configuration values
+ServerTokens: "OS"
+ServerRoot: "/etc/httpd"
+PidFile: "run/httpd.pid"
+Timeout: "60"
+KeepAlive: "Off"
+MaxKeepAliveRequests: "100"
+KeepAliveTimeout: "15"
+
+StartServers: "8"
+MinSpareServers: "5"
+MaxSpareServers: "20"
+ServerLimit: "256"
+MaxClients: "256"
+MaxRequestsPerChild: "4000"
+
+StartServers: "4"
+MaxClients: "300"
+MinSpareThreads: "25"
+MaxSpareThreads: "75"
+ThreadsPerChild: "25"
+MaxRequestsPerChild: "0"
+
+DefaultPortInsecure: "80"
+
+Modules: 
+- machine_name: auth_basic_module
+  file_name: modules/mod_auth_basic.so
+- machine_name: auth_digest_module
+  file_name: modules/mod_auth_digest.so
+- machine_name: authn_file_module
+  file_name: modules/mod_authn_file.so
+- machine_name: authn_alias_module
+  file_name: modules/mod_authn_alias.so
+- machine_name: authn_anon_module
+  file_name: modules/mod_authn_anon.so
+- machine_name: authn_dbm_module
+  file_name: modules/mod_authn_dbm.so
+- machine_name: authn_default_module
+  file_name: modules/mod_authn_default.so
+- machine_name: authz_host_module
+  file_name: modules/mod_authz_host.so
+- machine_name: authz_user_module
+  file_name: modules/mod_authz_user.so
+- machine_name: authz_owner_module
+  file_name: modules/mod_authz_owner.so
+- machine_name: authz_groupfile_module
+  file_name: modules/mod_authz_groupfile.so
+- machine_name: authz_dbm_module
+  file_name: modules/mod_authz_dbm.so
+- machine_name: authz_default_module
+  file_name: modules/mod_authz_default.so
+- machine_name: ldap_module
+  file_name: modules/mod_ldap.so
+- machine_name: authnz_ldap_module
+  file_name: modules/mod_authnz_ldap.so
+- machine_name: include_module
+  file_name: modules/mod_include.so
+- machine_name: log_config_module
+  file_name: modules/mod_log_config.so
+- machine_name: logio_module
+  file_name: modules/mod_logio.so
+- machine_name: env_module
+  file_name: modules/mod_env.so
+- machine_name: ext_filter_module
+  file_name: modules/mod_ext_filter.so
+- machine_name: mime_magic_module
+  file_name: modules/mod_mime_magic.so
+- machine_name: expires_module
+  file_name: modules/mod_expires.so
+- machine_name: deflate_module
+  file_name: modules/mod_deflate.so
+- machine_name: headers_module
+  file_name: modules/mod_headers.so
+- machine_name: usertrack_module
+  file_name: modules/mod_usertrack.so
+- machine_name: setenvif_module
+  file_name: modules/mod_setenvif.so
+- machine_name: mime_module
+  file_name: modules/mod_mime.so
+- machine_name: dav_module
+  file_name: modules/mod_dav.so
+- machine_name: status_module
+  file_name: modules/mod_status.so
+- machine_name: autoindex_module
+  file_name: modules/mod_autoindex.so
+- machine_name: info_module
+  file_name: modules/mod_info.so
+- machine_name: dav_fs_module
+  file_name: modules/mod_dav_fs.so
+- machine_name: vhost_alias_module
+  file_name: modules/mod_vhost_alias.so
+- machine_name: negotiation_module
+  file_name: modules/mod_negotiation.so
+- machine_name: dir_module
+  file_name: modules/mod_dir.so
+- machine_name: actions_module
+  file_name: modules/mod_actions.so
+- machine_name: speling_module
+  file_name: modules/mod_speling.so
+- machine_name: userdir_module
+  file_name: modules/mod_userdir.so
+- machine_name: alias_module
+  file_name: modules/mod_alias.so
+- machine_name: substitute_module
+  file_name: modules/mod_substitute.so
+- machine_name: rewrite_module
+  file_name: modules/mod_rewrite.so
+- machine_name: proxy_module
+  file_name: modules/mod_proxy.so
+- machine_name: proxy_balancer_module
+  file_name: modules/mod_proxy_balancer.so
+- machine_name: proxy_ftp_module
+  file_name: modules/mod_proxy_ftp.so
+- machine_name: proxy_http_module
+  file_name: modules/mod_proxy_http.so
+- machine_name: proxy_ajp_module
+  file_name: modules/mod_proxy_ajp.so
+- machine_name: proxy_connect_module
+  file_name: modules/mod_proxy_connect.so
+- machine_name: cache_module
+  file_name: modules/mod_cache.so
+- machine_name: suexec_module
+  file_name: modules/mod_suexec.so
+- machine_name: disk_cache_module
+  file_name: modules/mod_disk_cache.so
+- machine_name: cgi_module
+  file_name: modules/mod_cgi.so
+- machine_name: version_module
+  file_name: modules/mod_version.so
+
+include_paths: 
+- conf.d/*.conf
+
+User: apache
+Group: apache
+
+# module_settings:
+# - userdir:
+#   - UserDir: disabled
+
+UserDir: disabled
+
+DirectoryIndex: "index.html index.html.var"
+
+AccessFileName: .htaccess
+
+ht_files_Order: "allow,deny"
+ht_files_Deny: "from all"
+ht_files_Satisfy: "All"
+
+TypesConfig: "/etc/mime.types"
+DefaultType: "text/plain"
+
+MIMEMagicFile: "conf/magic"
+
+HostnameLookups: Off
+
+ErrorLog: "logs/error_log"
+LogLevel: "warn"
+
+LogFormat:
+- pattern: "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\""
+  method: "combined"
+- pattern: "%h %l %u %t \"%r\" %>s %b"
+  method: "common"
+- pattern: "%{Referer}i -> %U"
+  method: "referer"
+- pattern: "%{User-agent}i"
+  method: "agent"
+
+
+CustomLog: "logs/access_log combined"
+ServerSignature: "On"
+icons_Alias: '/icons/ "/var/www/icons/"'
+
+icons_Directory_Options: "Indexes MultiViews FollowSymLinks"
+icons_Directory_AllowOverride: "None"
+icons_Directory_Order: "allow,deny"
+icons_Directory_Allow: "from all"
+
+DAVLockDB: "/var/lib/dav/lockdb"
+
+ScriptAlias: '/cgi-bin/ "/var/www/cgi-bin/"'
+
+cgibin_Directory_AllowOverride: None
+cgibin_Directory_Options: None
+cgibin_Directory_Order: allow,deny
+cgibin_Directory_Allow: from all
+
+IndexOptions: "FancyIndexing VersionSort NameWidth=* HTMLTable Charset=UTF-8"
+
+AddIconByEncoding: "(CMP,/icons/compressed.gif) x-compress x-gzip"
+
+AddIconByType: 
+- icon_name: "(TXT,/icons/text.gif)" 
+  icon_for: "text/*"
+- icon_name: "(IMG,/icons/image2.gif)" 
+  icon_for: "image/*"
+- icon_name: "(SND,/icons/sound2.gif)" 
+  icon_for: "audio/*"
+- icon_name: "(VID,/icons/movie.gif)" 
+  icon_for: "video/*"
+
+AddIcon
+- path: "/icons/binary.gif"
+  for_extensions: ".bin .exe"
+- path: "/icons/binhex.gif"
+  for_extensions: ".hqx"
+- path: "/icons/tar.gif"
+  for_extensions: ".tar"
+- path: "/icons/world2.gif"
+  for_extensions: ".wrl .wrl.gz .vrml .vrm .iv"
+- path: "/icons/compressed.gif"
+  for_extensions: ".Z .z .tgz .gz .zip"
+- path: "/icons/a.gif"
+  for_extensions: ".ps .ai .eps"
+- path: "/icons/layout.gif"
+  for_extensions: ".html .shtml .htm .pdf"
+- path: "/icons/text.gif"
+  for_extensions: ".txt"
+- path: "/icons/c.gif"
+  for_extensions: ".c"
+- path: "/icons/p.gif"
+  for_extensions: ".pl .py"
+- path: "/icons/f.gif"
+  for_extensions: ".for"
+- path: "/icons/dvi.gif"
+  for_extensions: ".dvi"
+- path: "/icons/uuencoded.gif"
+  for_extensions: ".uu"
+- path: "/icons/script.gif"
+  for_extensions: ".conf .sh .shar .csh .ksh .tcl"
+- path: "/icons/tex.gif"
+  for_extensions: ".tex"
+- path: "/icons/bomb.gif"
+  for_extensions: "core"
+- path: "/icons/back.gif"
+  for_extensions: ".."
+- path: "/icons/hand.right"
+  for_extensions:."gif README"
+- path: "/icons/folder.gif"
+  for_extensions: "^^DIRECTORY^^"
+- path: "/icons/blank.gif"
+  for_extensions: "^^BLANKICON^^"
+
+DefaultIcon: "/icons/unknown.gif"
+
+ReadmeName: "README.html"
+HeaderName: "HEADER.html"
+IndexIgnore: ".??* *~ *# HEADER* README* RCS CVS *,v *,t"
+
+AddLanguage:
+- abbr: "ca"
+  extension: ".ca"
+- abbr: "cs"
+  extension: ".cz .cs"
+- abbr: "da"
+  extension: ".dk"
+- abbr: "de"
+  extension: ".de"
+- abbr: "el"
+  extension: ".el"
+- abbr: "en"
+  extension: ".en"
+- abbr: "eo"
+  extension: ".eo"
+- abbr: "es"
+  extension: ".es"
+- abbr: "et"
+  extension: ".et"
+- abbr: "fr"
+  extension: ".fr"
+- abbr: "he"
+  extension: ".he"
+- abbr: "hr"
+  extension: ".hr"
+- abbr: "it"
+  extension: ".it"
+- abbr: "ja"
+  extension: ".ja"
+- abbr: "ko"
+  extension: ".ko"
+- abbr: "ltz"
+  extension: ".ltz"
+- abbr: "nl"
+  extension: ".nl"
+- abbr: "nn"
+  extension: ".nn"
+- abbr: "no"
+  extension: ".no"
+- abbr: "pl"
+  extension: ".po"
+- abbr: "pt"
+  extension: ".pt"
+- abbr: "pt-BR"
+  extension: ".pt-br"
+- abbr: "ru"
+  extension: ".ru"
+- abbr: "sv"
+  extension: ".sv"
+- abbr: "zh-CN"
+  extension: ".zh-cn"
+- abbr: "zh-TW"
+  extension: ".zh-tw"
+
+LanguagePriority: "en ca cs da de el eo es et fr he hr it ja ko ltz nl nn no pl pt pt-BR ru sv zh-CN zh-TW"
+
+ForceLanguagePriority: "Prefer Fallback"
+
+AddDefaultCharset: "UTF-8"
+
+AddType:
+- mime_type: "application/x-compress"
+  extension: ".Z"
+- mime_type: "application/x-gzip"
+  extension: ".gz .tgz"
+- mime_type: "application/x-x509-ca-cert"
+  extension: ".crt"
+- mime_type: "application/x-pkcs7-crl"
+  extension: ".crl"
+- mime_type: "text/html"
+  extension: ".shtml"
+  output_filter: "INCLUDES .shtml"
+
+AddHandler: "type-map var"
+
+Alias: '/error/ "/var/www/error/"'
+
+error_Directory_AllowOverride: "None"
+error_Directory_Options: "IncludesNoExec"
+error_Directory_AddOutputFilter: "Includes html"
+error_Directory_AddHandler: "type-map var"
+error_Directory_Order: "allow,deny"
+error_Directory_Allow: "from all"
+error_Directory_LanguagePriority: "en es de fr"
+error_Directory_ForceLanguagePriority: "Prefer Fallback"
+
+BrowserMatch:
+- regex: "Mozilla/2"
+  options: "nokeepalive"
+- regex: "MSIE 4\.0b2;"
+  options: "nokeepalive downgrade-1.0 force-response-1.0"
+- regex: "RealPlayer 4\.0"
+  options: "force-response-1.0"
+- regex: "Java/1\.0"
+  options: "force-response-1.0"
+- regex: "JDK/1\.0"
+  options: "force-response-1.0"
+- regex: "Microsoft Data Access Internet Publishing Provider"
+  options: "redirect-carefully"
+- regex: "MS FrontPage"
+  options: "redirect-carefully"
+- regex: "^WebDrive"
+  options: "redirect-carefully"
+- regex: "^WebDAVFS/1.[0123]"
+  options: "redirect-carefully"
+- regex: "^gnome-vfs/1.0"
+  options: "redirect-carefully"
+- regex: "^XML Spy"
+  options: "redirect-carefully"
+- regex: "^Dreamweaver-WebDAV-SCM1"
+  options: "redirect-carefully"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  

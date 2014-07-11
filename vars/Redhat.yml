@@ -1,0 +1,21 @@
+---
+apache_user: apache
+apache_group: apache
+apache_daemon: httpd
+apache_etc: /etc/httpd
+apache_conf_path: /etc/httpd/conf.d
+apache_vhost_available_path: /etc/httpd/sites-available
+apache_vhost_enabled_path: /etc/httpd/sites-available	
+
+apache_main_packages: 
+- httpd 
+- mod_ssl
+
+apache_2custom_packages: 
+- httpd-devel
+- httpd-tools
+- openssh
+- apr
+- apr-util
+- apr-util-ldap
+- mailcap
