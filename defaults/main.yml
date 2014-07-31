@@ -1,5 +1,70 @@
 ---
-apache_custom_packages: []
+# Manage custom Packages in a separate role
+
+virtualhosts:
+-
+  vhost_filename: "insecure"
+  Listen: "80"
+  NameVirtualHost: "*.80"
+  Tags:
+  -
+    TagName: "VirtualHost"
+    TagAttribute: "*.80"
+    DocumentRoot: "/var/www/html/example"
+    ServerName: "www.example.com"
+    Tags:
+    -
+      TagName: "Directory"
+      TagAttribute: "/var/www/html/example"
+      Options: "Indexes FollowSymLinks"
+      AllowOverride: "All"
+      Order: "allow,deny"
+      Allow: "from all"
+  -
+    TagName: "VirtualHost"
+    TagAttribute: "*.80"
+    DocumentRoot: "/var/www/html/another"
+    ServerName: "www.anotherexample.com"
+-
+  vhost_filename: "ssl"
+  LoadModule: "ssl_module modules/mod_ssl.so"
+  Listen: 443
+  SSLPassPhraseDialog: "builtin"
+  SSLSessionCache: "shmcb:/var/cache/mod_ssl/scache(512000)"
+  SSLSessionCacheTimeout: "300"
+  SSLMutex: "default"
+  SSLRandomSeed: "startup file:/dev/urandom  256"
+  SSLRandomSeed: "connect builtin"
+  SSLCryptoDevice: "builtin"
+  Tags:
+  -
+    TagName: "VirtualHost"
+    TagAttribute: "_default_:443"
+    ErrorLog: "logs/ssl_error_log"
+    TransferLog: "logs/ssl_access_log"
+    LogLevel: "warn"
+    SSLEngine: "on"
+    SSLProtocol: "all -SSLv2"
+    SSLCipherSuite: "ALL:!ADH:!EXPORT:!SSLv2:RC4+RSA:+HIGH:+MEDIUM:+LOW"
+    SSLCertificateFile: "/etc/pki/tls/certs/localhost.crt"
+    SSLCertificateKeyFile: "/etc/pki/tls/private/localhost.key"
+    Tags:
+    -
+      TagName: "Files"
+      TagAttribute: '~ "\.(cgi|shtml|phtml|php3?)$"'
+      SSLOptions: "+StdEnvVars"
+    -
+      TagName: "Directory"
+      TagAttribute: '"/var/www/cgi-bin"'
+      SSLOptions: "+StdEnvVars"
+    SetEnvIf: > 
+            User-Agent ".*MSIE.*" \
+            nokeepalive ssl-unclean-shutdown \
+            downgrade-1.0 force-response-1.0
+    CustomLog: >
+            logs/ssl_request_log \
+            "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+
 
 # Main Apache Configuration values
 ServerTokens: "OS"
@@ -10,21 +75,34 @@ KeepAlive: "Off"
 MaxKeepAliveRequests: "100"
 KeepAliveTimeout: "15"
 
-StartServers: "8"
-MinSpareServers: "5"
-MaxSpareServers: "20"
-ServerLimit: "256"
-MaxClients: "256"
-MaxRequestsPerChild: "4000"
+Module_Configs:
+  -
+    module_name: "prefork.c"
+    StartServers: "8"
+    MinSpareServers: "5"
+    MaxSpareServers: "20"
+    ServerLimit: "256"
+    MaxClients: "256"
+    MaxRequestsPerChild: "4000"
+  -
+    module_name: "worker.c"
+    StartServers: "4"
+    MaxClients: "300"
+    MinSpareThreads: "25"
+    MaxSpareThreads: "75"
+    ThreadsPerChild: "25"
+    MaxRequestsPerChild: "0"
+  - 
+    module_name: "userdir.c"
+    UserDir: disabled
+  - 
+    module_name: "mod_mime_magic.c"
+    MIMEMagicFile: "conf/magic"
+  -
+    module_name: "mod_dav_fs.c"
+    DAVLockDB: "/var/lib/dav/lockdb"
 
-StartServers: "4"
-MaxClients: "300"
-MinSpareThreads: "25"
-MaxSpareThreads: "75"
-ThreadsPerChild: "25"
-MaxRequestsPerChild: "0"
-
-DefaultPortInsecure: "80"
+Listen: "80"
 
 Modules: 
 - machine_name: auth_basic_module
@@ -138,11 +216,6 @@ include_paths:
 User: apache
 Group: apache
 
-# module_settings:
-# - userdir:
-#   - UserDir: disabled
-
-UserDir: disabled
 
 DirectoryIndex: "index.html index.html.var"
 
@@ -155,21 +228,19 @@ ht_files_Satisfy: "All"
 TypesConfig: "/etc/mime.types"
 DefaultType: "text/plain"
 
-MIMEMagicFile: "conf/magic"
-
-HostnameLookups: Off
+HostnameLookups: "Off"
 
 ErrorLog: "logs/error_log"
 LogLevel: "warn"
 
 LogFormat:
-- pattern: "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\""
+- pattern: '"%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\""'
   method: "combined"
-- pattern: "%h %l %u %t \"%r\" %>s %b"
+- pattern: '"%h %l %u %t \"%r\" %>s %b"'
   method: "common"
-- pattern: "%{Referer}i -> %U"
+- pattern: '"%{Referer}i -> %U"'
   method: "referer"
-- pattern: "%{User-agent}i"
+- pattern: '"%{User-agent}i"'
   method: "agent"
 
 
@@ -181,8 +252,6 @@ icons_Directory_Options: "Indexes MultiViews FollowSymLinks"
 icons_Directory_AllowOverride: "None"
 icons_Directory_Order: "allow,deny"
 icons_Directory_Allow: "from all"
-
-DAVLockDB: "/var/lib/dav/lockdb"
 
 ScriptAlias: '/cgi-bin/ "/var/www/cgi-bin/"'
 
@@ -205,7 +274,7 @@ AddIconByType:
 - icon_name: "(VID,/icons/movie.gif)" 
   icon_for: "video/*"
 
-AddIcon
+AddIcon:
 - path: "/icons/binary.gif"
   for_extensions: ".bin .exe"
 - path: "/icons/binhex.gif"
@@ -241,7 +310,7 @@ AddIcon
 - path: "/icons/back.gif"
   for_extensions: ".."
 - path: "/icons/hand.right"
-  for_extensions:."gif README"
+  for_extensions: ".gif README"
 - path: "/icons/folder.gif"
   for_extensions: "^^DIRECTORY^^"
 - path: "/icons/blank.gif"
@@ -342,27 +411,27 @@ error_Directory_ForceLanguagePriority: "Prefer Fallback"
 BrowserMatch:
 - regex: "Mozilla/2"
   options: "nokeepalive"
-- regex: "MSIE 4\.0b2;"
+- regex: 'MSIE 4\.0b2;'
   options: "nokeepalive downgrade-1.0 force-response-1.0"
-- regex: "RealPlayer 4\.0"
+- regex: 'RealPlayer 4\.0'
   options: "force-response-1.0"
-- regex: "Java/1\.0"
+- regex: 'Java/1\.0'
   options: "force-response-1.0"
-- regex: "JDK/1\.0"
+- regex: 'JDK/1\.0'
   options: "force-response-1.0"
-- regex: "Microsoft Data Access Internet Publishing Provider"
+- regex: 'Microsoft Data Access Internet Publishing Provider'
   options: "redirect-carefully"
-- regex: "MS FrontPage"
+- regex: 'MS FrontPage'
   options: "redirect-carefully"
-- regex: "^WebDrive"
+- regex: '^WebDrive'
   options: "redirect-carefully"
-- regex: "^WebDAVFS/1.[0123]"
+- regex: '^WebDAVFS/1.[0123]'
   options: "redirect-carefully"
-- regex: "^gnome-vfs/1.0"
+- regex: '^gnome-vfs/1.0'
   options: "redirect-carefully"
-- regex: "^XML Spy"
+- regex: '^XML Spy'
   options: "redirect-carefully"
-- regex: "^Dreamweaver-WebDAV-SCM1"
+- regex: '^Dreamweaver-WebDAV-SCM1'
   options: "redirect-carefully"
 
 

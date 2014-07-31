@@ -1,14 +1,49 @@
 ---
+- name: "[VARS] Load OS-Specific Variables"
+  include_vars: "{{ ansible_os_family }}.yml"
+  tags: 
+    - apache
+    - vhost
+
 - name: "[INSTALL] Main Packages"
+  sudo: yes
   yum: "name={{ item }} state=present"
-  with_items: main_packages
+  with_items: apache_main_packages
+  tags: 
+  - apache
 
 - name: "[INSTALL] Custom Packages"
+  sudo: yes
   yum: "name={{ item }} state=present"
-  with_items: main_packages
+  with_items: apache_custom_packages
+  tags: 
+  - apache
 
 - name: "[DIR] Ensure sites-available folder exists"
+  sudo: yes
   file: "path={{ apache_vhost_available_path }} state=directory owner={{ apache_user }} group={{ apache_group }} mode=644"
+  tags: 
+  - apache
 
 - name: "[CONFIG] httpd.conf"
-  template: "httpd.conf.j2 dest={{ apache_etc }}/conf/httpd.conf owner=root group=root mode=644"
+  sudo: yes
+  template: "src=httpd.conf.j2 dest={{ apache_etc }}/conf/httpd.conf owner=root group=root mode=644"
+  tags: 
+  - apache
+  - configs
+
+- name: debug
+  debug: var=vhost_insecure
+  tags: 
+  - apache
+  - configs
+  - vhost
+
+- name: "[CONFIG] Virtual Hosts"
+  sudo: yes
+  template: "src=vhost.conf.j2 dest={{ apache_etc }}/sites-available/{{ item.vhost_filename }}.conf owner=root group=root mode=644"
+  with_items: virtualhosts
+  tags: 
+  - apache
+  - configs
+  - vhost

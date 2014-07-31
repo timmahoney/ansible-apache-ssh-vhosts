@@ -8,57 +8,18 @@ KeepAlive {{ KeepAlive }}
 MaxKeepAliveRequests {{ MaxKeepAliveRequests }}
 KeepAliveTimeout {{ KeepAliveTimeout }}
 
-
-<IfModule prefork.c>
-StartServers         {{ StartServers }}
-MinSpareServers      {{ MinSpareServers }}
-MaxSpareServers      {{ MaxSpareServers }}
-ServerLimit          {{ ServerLimit }}
-MaxClients           {{ MaxClients }}
-MaxRequestsPerChild  {{ MaxRequestsPerChild }}
-</IfModule>
-
-<IfModule worker.c>
-StartServers {{ StartServers }}
-MaxClients {{ MaxClients }}
-MinSpareThreads {{ MinSpareThreads }}
-MaxSpareThreads {{ MaxSpareThreads }}
-ThreadsPerChild {{ ThreadsPerChild }}
-MaxRequestsPerChild {{ MaxRequestsPerChild }}
-</IfModule>
-
-Listen {{ DefaultPortInsecure }}
+Listen {{ Listen }}
 
 {% for module in Modules %}
 LoadModule {{ module.machine_name }} {{ module.file_name }}
 {% endfor %}
 
-{% for inc as include_paths %}
+{% for inc in include_paths %}
     Include {{ inc }}
 {% endfor %}
 
 User {{ User }}
 Group {{ Group }}
-
-# ServerAdmin {{ ServerAdmin }}
-# UseCanonicalName {{ UseCanonicalName }}
-# DocumentRoot "{{ DocumentRoot }}"
-
-# <Directory />
-#     Options FollowSymLinks
-#     AllowOverride None
-# </Directory>
-
-# <Directory "/var/www/html">
-#     Options Indexes FollowSymLinks
-#     AllowOverride None
-#     Order allow,deny
-#     Allow from all
-# </Directory>
-
-<IfModule mod_userdir.c>
-    UserDir {{ UserDir }}
-</IfModule>
 
 DirectoryIndex {{ DirectoryIndex }}
 
@@ -73,17 +34,13 @@ AccessFileName {{ AccessFileName }}
 TypesConfig {{ TypesConfig }}
 DefaultType {{ DefaultType }}
 
-<IfModule mod_mime_magic.c>
-    MIMEMagicFile {{ MIMEMagicFile }}
-</IfModule>
-
 HostnameLookups {{ HostnameLookups }}
 
 ErrorLog {{ ErrorLog }}
 LogLevel {{ LogLevel }}
 
 {% for lf in LogFormat %}
-LogFormat "{{ lf.pattern }}" {{ lf.method }}
+LogFormat {{ lf.pattern }} {{ lf.method }}
 {% endfor %}
 
 CustomLog {{ CustomLog }} 
@@ -98,18 +55,13 @@ Alias {{ icons_Alias }}
     Allow {{ icons_Directory_Allow }}
 </Directory>
 
-<IfModule mod_dav_fs.c>
-    # Location of the WebDAV lock database.
-    DAVLockDB {{ DAVLockDB }}
-</IfModule>
-
 ScriptAlias {{ ScriptAlias }}
 
 <Directory "/var/www/cgi-bin">
-    AllowOverride cgibin_Directory_AllowOverride
-    Options cgibin_Directory_Options
-    Order cgibin_Directory_Order
-    Allow cgibin_Directory_Allow
+    AllowOverride {{ cgibin_Directory_AllowOverride }}
+    Options {{ cgibin_Directory_Options }}
+    Order {{ cgibin_Directory_Order }}
+    Allow {{ cgibin_Directory_Allow }}
 </Directory>
 
 IndexOptions {{ IndexOptions }}
@@ -170,10 +122,13 @@ Alias {{ Alias }}
 BrowserMatch "{{ match.regex }}" {{ match.options }}
 {% endfor %}
 
-
-
-
-
+{% for module in Module_Configs %}
+<IfModule {{ module.module_name }}>
+{% for k,v in module.iteritems() if k != "module_name" %}
+  {{ k }} {{ v }}
+{% endfor %}
+</IfModule>
+{% endfor %}
 
 
 

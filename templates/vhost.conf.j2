@@ -1,0 +1,19 @@
+# {{ ansible_managed }}
+{% set vhost = [item] %}
+
+{% for i in vhost recursive %}
+{% set outer_loop = loop %}
+  {% if i.TagName is defined and i.TagAttribute is defined %} 
+    <{{ i.TagName }} {{ i.TagAttribute }}>
+  {% endif %}
+  {% for k,v in i.iteritems() if k != "vhost_filename" and k != "TagName" and k != "TagAttribute" %}
+  {% if k == "Tags" %}
+      {{ outer_loop(v) }}
+  {% else %}
+    {{ k }} {{ v }}
+  {% endif %}  
+  {% endfor %}
+  {% if i.TagName is defined and i.TagAttribute is defined %} 
+    </{{ i.TagName }}>
+  {% endif %}
+{% endfor %}
