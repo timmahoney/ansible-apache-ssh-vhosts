@@ -1,135 +1,25 @@
 # {{ ansible_managed }}
 
-ServerTokens {{ ServerTokens }}
-ServerRoot {{ ServerRoot }}
-PidFile {{ PidFile }}
-Timeout {{ Timeout }}
-KeepAlive {{ KeepAlive }}
-MaxKeepAliveRequests {{ MaxKeepAliveRequests }}
-KeepAliveTimeout {{ KeepAliveTimeout }}
-
-Listen {{ Listen }}
-
-{% for module in Modules %}
-LoadModule {{ module.machine_name }} {{ module.file_name }}
+{% for section in httpd_conf recursive %}
+{% set outer_loop = loop %}
+  {% if section.TagName is defined and section.TagAttribute is defined %} 
+  <{{ section.TagName }} {{ section.TagAttribute }}>
+  {% endif %}
+  {% for k,v in section.iteritems() if k != "TagName" and k != "TagAttribute" %}
+  {% if k == "Tags" %}
+      {{ outer_loop(v) }}
+  {% else %}
+    {% if v is string %}
+      {{ k }} {{ v }}
+    {% else %}
+      {% for list_item in v %}
+        {{ k }} {{ list_item }}
+      {% endfor %}
+    {% endif %}
+    
+  {% endif %}  
+  {% endfor %}
+  {% if section.TagName is defined and section.TagAttribute is defined %} 
+  </{{ section.TagName }}>
+  {% endif %}
 {% endfor %}
-
-{% for inc in include_paths %}
-    Include {{ inc }}
-{% endfor %}
-
-User {{ User }}
-Group {{ Group }}
-
-DirectoryIndex {{ DirectoryIndex }}
-
-AccessFileName {{ AccessFileName }}
-
-<Files ~ "^\.ht">
-    Order {{ ht_files_Order }}
-    Deny {{ ht_files_Deny }}
-    Satisfy {{ ht_files_Satisfy }}
-</Files>
-
-TypesConfig {{ TypesConfig }}
-DefaultType {{ DefaultType }}
-
-HostnameLookups {{ HostnameLookups }}
-
-ErrorLog {{ ErrorLog }}
-LogLevel {{ LogLevel }}
-
-{% for lf in LogFormat %}
-LogFormat {{ lf.pattern }} {{ lf.method }}
-{% endfor %}
-
-CustomLog {{ CustomLog }} 
-ServerSignature {{ ServerSignature }}
-
-Alias {{ icons_Alias }}
-
-<Directory "/var/www/icons">
-    Options {{ icons_Directory_Options }}
-    AllowOverride {{ icons_Directory_AllowOverride }}
-    Order {{ icons_Directory_Order }}
-    Allow {{ icons_Directory_Allow }}
-</Directory>
-
-ScriptAlias {{ ScriptAlias }}
-
-<Directory "/var/www/cgi-bin">
-    AllowOverride {{ cgibin_Directory_AllowOverride }}
-    Options {{ cgibin_Directory_Options }}
-    Order {{ cgibin_Directory_Order }}
-    Allow {{ cgibin_Directory_Allow }}
-</Directory>
-
-IndexOptions {{ IndexOptions }}
-
-AddIconByEncoding {{ AddIconByEncoding }}
-
-{% for icontype in AddIconByType %}
-AddIconByType {{ icontype.icon_name }} {{ icontype.icon_for }}
-{% endfor %}
-
-{% for icon in AddIcon %}
-AddIcon {{icon.path}} {{ icon.for_extensions }}
-{% endfor %}
-
-DefaultIcon {{ DefaultIcon }}
-
-ReadmeName {{ ReadmeName }}
-HeaderName {{ HeaderName }}
-IndexIgnore {{ IndexIgnore }}
-
-{% for language in AddLanguage %}
-AddLanguage {{ language.abbr }} {{ language.extension }}
-{% endfor %}
-
-LanguagePriority {{ LanguagePriority }}
-
-ForceLanguagePriority {{ ForceLanguagePriority }}
-
-AddDefaultCharset {{ AddDefaultCharset }}
-
-{% for type in AddType %}
-AddType {{ type.mime_type }} {{ type.extension }}
-{% if type.output_filter is defined %}AddOutputFilter {{ type.output_filter }}{% endif %}
-{% endfor %}
-
-AddHandler {{ AddHandler }}
-
-Alias {{ Alias }}
-
-<IfModule mod_negotiation.c>
-<IfModule mod_include.c>
-    <Directory "/var/www/error">
-        AllowOverride {{ error_Directory_AllowOverride }}
-        Options {{ error_Directory_Options }}
-        AddOutputFilter {{ error_Directory_AddOutputFilter }}
-        AddHandler {{ error_Directory_AddHandler }}
-        Order {{ error_Directory_Order }}
-        Allow {{ error_Directory_Allow }}
-        LanguagePriority {{ error_Directory_LanguagePriority }}
-        ForceLanguagePriority {{ error_Directory_ForceLanguagePriority }}
-    </Directory>
-
-
-</IfModule>
-</IfModule>
-
-{% for match in BrowserMatch %}
-BrowserMatch "{{ match.regex }}" {{ match.options }}
-{% endfor %}
-
-{% for module in Module_Configs %}
-<IfModule {{ module.module_name }}>
-{% for k,v in module.iteritems() if k != "module_name" %}
-  {{ k }} {{ v }}
-{% endfor %}
-</IfModule>
-{% endfor %}
-
-
-
-

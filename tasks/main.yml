@@ -3,7 +3,7 @@
   include_vars: "{{ ansible_os_family }}.yml"
   tags: 
     - apache
-    - vhost
+    - vhosts
 
 - name: "[INSTALL] Main Packages"
   sudo: yes
@@ -11,6 +11,7 @@
   with_items: apache_main_packages
   tags: 
   - apache
+  - apache_install
 
 - name: "[INSTALL] Custom Packages"
   sudo: yes
@@ -18,6 +19,7 @@
   with_items: apache_custom_packages
   tags: 
   - apache
+  - apache_install
 
 - name: "[DIR] Ensure sites-available folder exists"
   sudo: yes
@@ -25,25 +27,37 @@
   tags: 
   - apache
 
-- name: "[CONFIG] httpd.conf"
+- name: "[DIR] Ensure sites-enabled folder exists"
+  sudo: yes
+  file: "path={{ apache_vhost_enabled_path }} state=directory owner={{ apache_user }} group={{ apache_group }} mode=644"
+  tags: 
+  - apache
+
+- name: "[GENERATE] httpd.conf"
   sudo: yes
   template: "src=httpd.conf.j2 dest={{ apache_etc }}/conf/httpd.conf owner=root group=root mode=644"
   tags: 
   - apache
   - configs
+  - httpd
+  notify: 
+  - Restart Apache
 
-- name: debug
-  debug: var=vhost_insecure
-  tags: 
-  - apache
-  - configs
-  - vhost
-
-- name: "[CONFIG] Virtual Hosts"
+- name: "[GENERATE] Virtual Hosts"
   sudo: yes
-  template: "src=vhost.conf.j2 dest={{ apache_etc }}/sites-available/{{ item.vhost_filename }}.conf owner=root group=root mode=644"
+  template: "src=vhost.conf.j2 dest={{ apache_etc }}/sites-available/{{ item.vhost_filename }}.conf owner=root group=root mode=0644"
   with_items: virtualhosts
   tags: 
   - apache
   - configs
-  - vhost
+  - vhosts
+
+- name: "[LINK] All Virtual Hosts from sites-available to sites-enabled"
+  sudo: yes
+  file: "src={{ apache_vhost_available_path }}/{{ item.vhost_filename }}.conf dest={{ apache_vhost_enabled_path }}/{{ item.vhost_filename }}.conf state=link owner=root group=root mode=0644"
+  with_items: virtualhosts
+  when: item.vhost_enabled == "yes"
+  tags: 
+  - apache
+  - configs
+  - vhosts

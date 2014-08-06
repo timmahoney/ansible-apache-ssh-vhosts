@@ -6,7 +6,7 @@
   {% if i.TagName is defined and i.TagAttribute is defined %} 
     <{{ i.TagName }} {{ i.TagAttribute }}>
   {% endif %}
-  {% for k,v in i.iteritems() if k != "vhost_filename" and k != "TagName" and k != "TagAttribute" %}
+  {% for k,v in i.iteritems() if k != "vhost_enabled" and k != "vhost_filename" and k != "TagName" and k != "TagAttribute" %}
   {% if k == "Tags" %}
       {{ outer_loop(v) }}
   {% else %}

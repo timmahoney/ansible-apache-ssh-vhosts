@@ -1,2 +1,390 @@
 ---
+httpd_conf:
+- 
+  ### Section 1: Global Environment
+  ServerTokens: "OS"
+  ServerRoot: '"/etc/httpd"'
+  PidFile: "run/httpd.pid"
+  Timeout: "60"
+  KeepAlive: "Off"
+  MaxKeepAliveRequests: "100"
+  KeepAliveTimeout: "15"
+  Listen: "80"
+  Include: 
+  - "conf.d/*.conf"
+  - "sites-enabled/*.conf"
+  User: "apache"
+  Group: "apache"
+-
+  ### Section 2: 'Main' server configuration
+  ServerAdmin: "tim@localhost"
+  UseCanonicalName: "Off"
+  DirectoryIndex: "index.html index.html.var"
+  HostnameLookups: "Off"
+  ServerSignature: "On"
+  IndexOptions: "FancyIndexing VersionSort NameWidth=* HTMLTable Charset=UTF-8"
+  ReadmeName: "README.html"
+  HeaderName: "HEADER.html"
+  IndexIgnore: ".??* *~ *# HEADER* README* RCS CVS *,v *,t"
+
+-
+  Tags:
+  - 
+    TagName: "IfModule"
+    TagAttribute: "worker.c"
+    StartServers: "4"
+    MaxClients: "300"
+    MinSpareThreads: "25"
+    MaxSpareThreads: "75"
+    ThreadsPerChild: "25"
+    MaxRequestsPerChild: "0"
+
+-
+  Tags:
+  - 
+    TagName: "IfModule"
+    TagAttribute: "prefork.c"
+    StartServers: "8"
+    MinSpareServers: "5"
+    MaxSpareServers: "20"
+    ServerLimit: "256"
+    MaxClients: "256"
+    MaxRequestsPerChild: "4000"
+
+-
+  LoadModule:
+  - "auth_basic_module modules/mod_auth_basic.so"
+  - "auth_digest_module modules/mod_auth_digest.so"
+  - "authn_file_module modules/mod_authn_file.so"
+  - "authn_alias_module modules/mod_authn_alias.so"
+  - "authn_anon_module modules/mod_authn_anon.so"
+  - "authn_dbm_module modules/mod_authn_dbm.so"
+  - "authn_default_module modules/mod_authn_default.so"
+  - "authz_host_module modules/mod_authz_host.so"
+  - "authz_user_module modules/mod_authz_user.so"
+  - "authz_owner_module modules/mod_authz_owner.so"
+  - "authz_groupfile_module modules/mod_authz_groupfile.so"
+  - "authz_dbm_module modules/mod_authz_dbm.so"
+  - "authz_default_module modules/mod_authz_default.so"
+  - "ldap_module modules/mod_ldap.so"
+  - "authnz_ldap_module modules/mod_authnz_ldap.so"
+  - "include_module modules/mod_include.so"
+  - "log_config_module modules/mod_log_config.so"
+  - "logio_module modules/mod_logio.so"
+  - "env_module modules/mod_env.so"
+  - "ext_filter_module modules/mod_ext_filter.so"
+  - "mime_magic_module modules/mod_mime_magic.so"
+  - "expires_module modules/mod_expires.so"
+  - "deflate_module modules/mod_deflate.so"
+  - "headers_module modules/mod_headers.so"
+  - "usertrack_module modules/mod_usertrack.so"
+  - "setenvif_module modules/mod_setenvif.so"
+  - "mime_module modules/mod_mime.so"
+  - "dav_module modules/mod_dav.so"
+  - "status_module modules/mod_status.so"
+  - "autoindex_module modules/mod_autoindex.so"
+  - "info_module modules/mod_info.so"
+  - "dav_fs_module modules/mod_dav_fs.so"
+  - "vhost_alias_module modules/mod_vhost_alias.so"
+  - "negotiation_module modules/mod_negotiation.so"
+  - "dir_module modules/mod_dir.so"
+  - "actions_module modules/mod_actions.so"
+  - "speling_module modules/mod_speling.so"
+  - "userdir_module modules/mod_userdir.so"
+  - "alias_module modules/mod_alias.so"
+  - "substitute_module modules/mod_substitute.so"
+  - "rewrite_module modules/mod_rewrite.so"
+  - "proxy_module modules/mod_proxy.so"
+  - "proxy_balancer_module modules/mod_proxy_balancer.so"
+  - "proxy_ftp_module modules/mod_proxy_ftp.so"
+  - "proxy_http_module modules/mod_proxy_http.so"
+  - "proxy_ajp_module modules/mod_proxy_ajp.so"
+  - "proxy_connect_module modules/mod_proxy_connect.so"
+  - "cache_module modules/mod_cache.so"
+  - "suexec_module modules/mod_suexec.so"
+  - "disk_cache_module modules/mod_disk_cache.so"
+  - "cgi_module modules/mod_cgi.so"
+  - "version_module modules/mod_version.so"
+  # - "asis_module modules/mod_asis.so"
+  # - "authn_dbd_module modules/mod_authn_dbd.so"
+  # - "cern_meta_module modules/mod_cern_meta.so"
+  # - "cgid_module modules/mod_cgid.so"
+  # - "dbd_module modules/mod_dbd.so"
+  # - "dumpio_module modules/mod_dumpio.so"
+  # - "filter_module modules/mod_filter.so"
+  # - "ident_module modules/mod_ident.so"
+  # - "log_forensic_module modules/mod_log_forensic.so"
+  # - "unique_id_module modules/mod_unique_id.so"
+
+-
+  Tags:
+  -
+    TagName: "IfModule"
+    TagAttribute: "mod_dav_fs.c"
+    DAVLockDB: "/var/lib/dav/lockdb"
+
+-
+  Tags:
+  - 
+    TagName: "IfModule"
+    TagAttribute: "mod_userdir.c"
+    UserDir: "disabled"
+
+-
+  ScriptAlias: '/cgi-bin/ "/var/www/cgi-bin/"'
+  Tags:
+  -
+    TagName: "Directory"
+    TagAttribute: '"/var/www/cgi-bin"'
+    AllowOverride: "None"
+    Options: "None"
+    Order: "allow,deny"
+    Allow: "from all"
+
+-
+  AddType:
+  - "application/x-compress .Z"
+  - "application/x-gzip .gz .tgz"
+  - "application/x-x509-ca-cert .crt"
+  - "application/x-pkcs7-crl    .crl"
+  - "text/html .shtml"
+  AddHandler: "type-map var"
+  AddOutputFilter: "INCLUDES .shtml"
+
+-
+  TypesConfig: "/etc/mime.types"
+  DefaultType: "text/plain"
+  Tags:
+  -
+    TagName: "IfModule"
+    TagAttribute: "mod_mime_magic.c"
+    MIMEMagicFile: "conf/magic"
+
+-
+  DocumentRoot: '"/var/www/html"'
+  Tags:
+  - 
+    TagName: "Directory"
+    TagAttribute: "/"
+    Options: "FollowSymLinks"
+    AllowOverride: "None"
+  -
+    TagName: "Directory"
+    TagAttribute: "/var/www/html"
+    Options: "Indexes FollowSymLinks"
+    AllowOverride: "None"
+    Order: "allow,deny"
+    Allow: "from all"
+
+-
+  AccessFileName: ".htaccess"
+  Tags:
+  - 
+    TagName: "Files"
+    TagAttribute: '~ "^\.ht"'
+    Order: "allow,deny"
+    Deny: "from all"
+    Satisfy: "All"
+
+-
+  Alias: '/error/ "/var/www/error/"'
+  Tags:
+  - 
+    TagName: "IfModule"
+    TagAttribute: "mod_negotiation.c"
+    Tags:
+    - 
+      TagName: "IfModule"
+      TagAttribute: "mod_include.c"
+      Tags:
+      - 
+        TagName: "Directory"
+        TagAttribute: '"/var/www/error"'
+        AllowOverride: "None"
+        Options: "IncludesNoExec"
+        AddOutputFilter: "Includes html"
+        AddHandler: "type-map var"
+        Order: "allow,deny"
+        Allow: "from all"
+        LanguagePriority: "en es de fr"
+        ForceLanguagePriority: "Prefer Fallback"
+
+-
+  Alias: '/icons/ "/var/www/icons/"'
+  Tags:
+  - 
+    TagName: "Directory"
+    TagAttribute: '"/var/www/icons"'
+    Options: "Indexes MultiViews FollowSymLinks"
+    AllowOverride: "None"
+    Order: "allow,deny"
+    Allow: "from all"
+
+-
+  AddLanguage:
+  - "ca .ca"
+  - "cs .cz .cs"
+  - "da .dk"
+  - "de .de"
+  - "el .el"
+  - "en .en"
+  - "eo .eo"
+  - "es .es"
+  - "et .et"
+  - "fr .fr"
+  - "he .he"
+  - "hr .hr"
+  - "it .it"
+  - "ja .ja"
+  - "ko .ko"
+  - "ltz .ltz"
+  - "nl .nl"
+  - "nn .nn"
+  - "no .no"
+  - "pl .po"
+  - "pt .pt"
+  - "pt-BR .pt-br"
+  - "ru .ru"
+  - "sv .sv"
+  - "zh-CN .zh-cn"
+  - "zh-TW .zh-tw"
+  LanguagePriority: "en ca cs da de el eo es et fr he hr it ja ko ltz nl nn no pl pt pt-BR ru sv zh-CN zh-TW"
+  ForceLanguagePriority: "Prefer Fallback"
+  AddDefaultCharset: "UTF-8"
+
+-
+  LogFormat:
+  - '"%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined'
+  - '"%h %l %u %t \"%r\" %>s %b" common'
+  - '"%{Referer}i -> %U" referer'
+  - '"%{User-agent}i" agent'
+
+-
+  ErrorLog: "logs/error_log"
+  LogLevel: "warn"
+  CustomLog: "logs/access_log combined"
+
+-
+  BrowserMatch: 
+  - '"Mozilla/2" nokeepalive'
+  - '"MSIE 4\.0b2;" nokeepalive downgrade-1.0 force-response-1.0'
+  - '"RealPlayer 4\.0" force-response-1.0'
+  - '"Java/1\.0" force-response-1.0'
+  - '"JDK/1\.0" force-response-1.0'
+  - '"Microsoft Data Access Internet Publishing Provider" redirect-carefully'
+  - '"MS FrontPage" redirect-carefully'
+  - '"^WebDrive" redirect-carefully'
+  - '"^WebDAVFS/1.[0123]" redirect-carefully'
+  - '"^gnome-vfs/1.0" redirect-carefully'
+  - '"^XML Spy" redirect-carefully'
+  - '"^Dreamweaver-WebDAV-SCM1" redirect-carefully'
+
+-
+  AddIconByEncoding: "(CMP,/icons/compressed.gif) x-compress x-gzip"
+  AddIconByType: 
+  - "(TXT,/icons/text.gif) text/*"
+  - "(IMG,/icons/image2.gif) image/*"
+  - "(SND,/icons/sound2.gif) audio/*"
+  - "(VID,/icons/movie.gif) video/*"
+  AddIcon: 
+  - "/icons/binary.gif .bin .exe"
+  - "/icons/binhex.gif .hqx"
+  - "/icons/tar.gif .tar"
+  - "/icons/world2.gif .wrl .wrl.gz .vrml .vrm .iv"
+  - "/icons/compressed.gif .Z .z .tgz .gz .zip"
+  - "/icons/a.gif .ps .ai .eps"
+  - "/icons/layout.gif .html .shtml .htm .pdf"
+  - "/icons/text.gif .txt"
+  - "/icons/c.gif .c"
+  - "/icons/p.gif .pl .py"
+  - "/icons/f.gif .for"
+  - "/icons/dvi.gif .dvi"
+  - "/icons/uuencoded.gif .uu"
+  - "/icons/script.gif .conf .sh .shar .csh .ksh .tcl"
+  - "/icons/tex.gif .tex"
+  - "/icons/bomb.gif core"
+  - "/icons/back.gif .."
+  - "/icons/hand.right.gif README"
+  - "/icons/folder.gif ^^DIRECTORY^^"
+  - "/icons/blank.gif ^^BLANKICON^^"
+  DefaultIcon: "/icons/unknown.gif"
+
+
+virtualhosts:
+-
+  vhost_filename: "welcome"
+  vhost_enabled: "yes"
+  Tags: 
+  - 
+    TagName: LocationMatch
+    TagAttribute: '"^/+$"'
+    Options: "-Indexes"
+    ErrorDocument: "403 /error/noindex.html"
+-
+  vhost_filename: "insecure"
+  vhost_enabled: "yes"
+  Listen: "80"
+  NameVirtualHost: "*.80"
+  Tags:
+  -
+    TagName: "VirtualHost"
+    TagAttribute: "*.80"
+    DocumentRoot: "/var/www/html/example"
+    ServerName: "www.example1.com"
+    Tags:
+    -
+      TagName: "Directory"
+      TagAttribute: "/var/www/html/example"
+      Options: "Indexes FollowSymLinks"
+      AllowOverride: "All"
+      Order: "allow,deny"
+      Allow: "from all"
+  -
+    TagName: "VirtualHost"
+    TagAttribute: "*.80"
+    DocumentRoot: "/var/www/html/another"
+    ServerName: "www.anotherexample.com"
+-
+  vhost_filename: "ssl"
+  vhost_enabled: "yes"
+  LoadModule: "ssl_module modules/mod_ssl.so"
+  Listen: 443
+  SSLPassPhraseDialog: "builtin"
+  SSLSessionCache: "shmcb:/var/cache/mod_ssl/scache(512000)"
+  SSLSessionCacheTimeout: "300"
+  SSLMutex: "default"
+  SSLRandomSeed: "startup file:/dev/urandom  256"
+  SSLRandomSeed: "connect builtin"
+  SSLCryptoDevice: "builtin"
+  Tags:
+  -
+    TagName: "VirtualHost"
+    TagAttribute: "_default_:443"
+    ErrorLog: "logs/ssl_error_log"
+    TransferLog: "logs/ssl_access_log"
+    LogLevel: "warn"
+    SSLEngine: "on"
+    SSLProtocol: "all -SSLv2"
+    SSLCipherSuite: "ALL:!ADH:!EXPORT:!SSLv2:RC4+RSA:+HIGH:+MEDIUM:+LOW"
+    SSLCertificateFile: "/etc/pki/tls/certs/localhost.crt"
+    SSLCertificateKeyFile: "/etc/pki/tls/private/localhost.key"
+    Tags:
+    -
+      TagName: "Files"
+      TagAttribute: '~ "\.(cgi|shtml|phtml|php3?)$"'
+      SSLOptions: "+StdEnvVars"
+    -
+      TagName: "Directory"
+      TagAttribute: '"/var/www/cgi-bin"'
+      SSLOptions: "+StdEnvVars"
+    SetEnvIf: > 
+            User-Agent ".*MSIE.*" \
+            nokeepalive ssl-unclean-shutdown \
+            downgrade-1.0 force-response-1.0
+    CustomLog: >
+            logs/ssl_request_log \
+            "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+
+
+
 

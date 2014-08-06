@@ -5,7 +5,7 @@ apache_daemon: "httpd"
 apache_etc: "/etc/httpd"
 apache_conf_path: "/etc/httpd/conf.d"
 apache_vhost_available_path: "/etc/httpd/sites-available"
-apache_vhost_enabled_path: "/etc/httpd/sites-available"
+apache_vhost_enabled_path: "/etc/httpd/sites-enabled"
 
 apache_main_packages: 
 - httpd 
